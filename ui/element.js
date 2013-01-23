@@ -3,7 +3,8 @@ ig.module(
 )
 .requires(
   'impact.animation',
-  'impact.font'
+  'impact.font',
+  'plugins.ui.statemachine'
 )
 .defines(function(){
 
@@ -15,11 +16,12 @@ ui.nextId = function() {
   return lastId++
 }
 
-ui.STATE = {
-  NORMAL: 'normal',
-  ACTIVE: 'active',
-  HOVER: 'hover',
-  DISABLED: 'disabled'
+var stateMap = {
+  IGNORE:       'normal',
+  DISABLED:     'disabled',
+  OUTSIDE:      'normal',
+  INSIDE:       'hover',
+  INSIDEACTIVE: 'active'
 }
 
 
@@ -36,11 +38,22 @@ ui.Element = ig.Class.extend({
   // currentAnim: null,
   outline: false,
 
-  state: 'normal', // STATE.NORMAL
+  state: 'normal', // STATE.NORMAL,
+  stateMachine: null,
 
   init: function(settings) {
     this.id = ui.nextId()
     ig.merge(this, settings)
+
+    var sm = this.stateMachine = new ui.StateMachine()
+    sm.isMouseInside = this._isMouseInside.bind(this)
+    sm.isMouseDown = this._isMouseDown.bind(this)
+    // sm.isEnabled = this._isEnabled.bind(this)
+    sm.startHover = this._startHover.bind(this)
+    sm.endHover = this._endHover.bind(this)
+    sm.startClick = this._startClick.bind(this)
+    sm.endClick = this._endClick.bind(this)
+    sm.endClickIgnore = this._endClickIgnore.bind(this)
   },
 
   addAnim: function(name, frameTime, sequence, stop) {
@@ -52,38 +65,9 @@ ui.Element = ig.Class.extend({
   },
 
   update: function() {
-    // this method could probably benefit from a FSM
-    var oldState = this.state
-    var hovering = this.includes(ig.input.mouse)
-    if (this.state != ui.STATE.DISABLED) {
-      if (hovering) {
-        this.state = ig.input.state('click') ?
-          ui.STATE.ACTIVE :
-          ui.STATE.HOVER
-      } else {
-        this.state = ui.STATE.NORMAL
-      }
-    }
-    var anim = this.anims[this.state]
-    if (anim) anim.update()
-
-    var st = ui.STATE
-    if (oldState != this.state) {
-      if (oldState == st.HOVER && this.state == st.ACTIVE) {
-        // the button has just been clicked or touched
-        this.pressDown(this)
-      }
-      else if (oldState == st.ACTIVE && this.state == st.HOVER) {
-        // the button was just released
-        this.pressUp(this)
-      }
-      else if (oldState == st.NORMAL && this.state == st.ACTIVE) {
-        // invalid transition. change the state back to normal
-        this.state = st.NORMAL
-      }
-    }
-    else if (this.state == st.ACTIVE) {
-      this.pressed(this)
+    this.stateMachine.updateState()
+    if (this.stateMachine.currentState === ui.BUTTONSTATE.INSIDEACTIVE) {
+      this.pressed && this.pressed(this)
     }
   },
 
@@ -114,6 +98,10 @@ ui.Element = ig.Class.extend({
     ctx.stroke()
   },
 
+  setCurrentState: function() {
+    this.state = stateMap[this.stateMachine.currentState.name]
+  },
+
   includes: function(point) {
     return !(
       this.pos.x - ig.game._rscreen.x > point.x ||
@@ -128,12 +116,52 @@ ui.Element = ig.Class.extend({
   },
 
   disable: function() {
-    this.state = ui.STATE.DISABLED
+    this.stateMachine.currentState = ui.BUTTONSTATE.DISABLED
+    // this.state = ui.STATE.DISABLED
   },
 
-  pressed: function() {},
-  pressDown: function() {},
-  pressUp: function() {}
+  pressed: null,
+  pressDown: null,
+  pressUp: null,
+
+
+  /* State Machine input functions */
+
+  _isMouseInside: function() {
+    return this.includes(ig.input.mouse)
+  },
+
+  _isMouseDown: function() {
+    return ig.input.state('click')
+  },
+
+  _isEnabled: function() {
+    return !this.stateMachine.currentState === ui.BUTTONSTATE.DISABLED
+  },
+
+  /* State Machine transition handlers */
+
+  _startHover: function() {
+    this.setCurrentState()
+  },
+
+  _endHover: function() {
+    this.setCurrentState()
+  },
+
+  _startClick: function() {
+    this.setCurrentState()
+    this.pressDown && this.pressDown(this)
+  },
+
+  _endClick: function() {
+    this.setCurrentState()
+    this.pressUp && this.pressUp(this)
+  },
+
+  _endClickIgnore: function() {
+    this.setCurrentState()
+  }
 
 })
 

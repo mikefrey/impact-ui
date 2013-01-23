@@ -10,17 +10,7 @@ ig.module(
 
 var ui = ig.ui = ig.ui || {}
 
-ui.Button = ig.ui.Element.extend({
-
-  // pressed: function() {},
-  // pressDown: function() {},
-  pressUp: function() {
-
-  },
-
-
-
-})
+ui.Button = ig.ui.Element //.extend({})
 
 
 })
