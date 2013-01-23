@@ -46,14 +46,14 @@ ui.Element = ig.Class.extend({
     ig.merge(this, settings)
 
     var sm = this.stateMachine = new ui.StateMachine()
-    sm.isMouseInside = this._isMouseInside.bind(this)
-    sm.isMouseDown = this._isMouseDown.bind(this)
-    // sm.isEnabled = this._isEnabled.bind(this)
-    sm.startHover = this._startHover.bind(this)
-    sm.endHover = this._endHover.bind(this)
-    sm.startClick = this._startClick.bind(this)
-    sm.endClick = this._endClick.bind(this)
-    sm.endClickIgnore = this._endClickIgnore.bind(this)
+    sm.isMouseInside = this.isMouseInside.bind(this)
+    sm.isMouseDown = this.isMouseDown.bind(this)
+    // sm.isEnabled = this.isEnabled.bind(this)
+    sm.startHover = this.onStartHover.bind(this)
+    sm.endHover = this.onEndHover.bind(this)
+    sm.startClick = this.onStartClick.bind(this)
+    sm.endClick = this.onEndClick.bind(this)
+    sm.endClickIgnore = this.onEndClickIgnore.bind(this)
   },
 
   addAnim: function(name, frameTime, sequence, stop) {
@@ -127,39 +127,39 @@ ui.Element = ig.Class.extend({
 
   /* State Machine input functions */
 
-  _isMouseInside: function() {
+  isMouseInside: function() {
     return this.includes(ig.input.mouse)
   },
 
-  _isMouseDown: function() {
+  isMouseDown: function() {
     return ig.input.state('click')
   },
 
-  _isEnabled: function() {
+  isEnabled: function() {
     return !this.stateMachine.currentState === ui.BUTTONSTATE.DISABLED
   },
 
   /* State Machine transition handlers */
 
-  _startHover: function() {
+  onStartHover: function() {
     this.setCurrentState()
   },
 
-  _endHover: function() {
+  onEndHover: function() {
     this.setCurrentState()
   },
 
-  _startClick: function() {
+  onStartClick: function() {
     this.setCurrentState()
     this.pressDown && this.pressDown(this)
   },
 
-  _endClick: function() {
+  onEndClick: function() {
     this.setCurrentState()
     this.pressUp && this.pressUp(this)
   },
 
-  _endClickIgnore: function() {
+  onEndClickIgnore: function() {
     this.setCurrentState()
   }
 
