@@ -12,12 +12,12 @@ var ui = ig.ui = ig.ui || {}
 
 ui.Panel = ig.ui.Element.extend({
 
-  elements: {},
+  elements: [],
 
   invoke: function(method) {
     var args = Array.prototype.slice.call(arguments, 1)
-    for (var id in this.elements) {
-      var el = this.elements[id]
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = this.elements[i]
       if (el[method]) el[method].apply(el, args)
     }
   },
@@ -27,8 +27,9 @@ ui.Panel = ig.ui.Element.extend({
     if (els.length > 0) {
       for (var i = 0; i < els.length; i++) {
         var el = els[i]
-        if (el && el.id && !(el.id in this.elements)) {
-          this.elements[el.id] = el
+        if (el && !~this.elements.indexOf(el)) {
+          el.relPos = { x:el.pos.x, y:el.pos.y }
+          this.elements.push(el)
         }
       }
     }
@@ -36,6 +37,11 @@ ui.Panel = ig.ui.Element.extend({
 
   update: function() {
     this.parent()
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = this.elements[i]
+      el.pos.x = el.relPos.x + this.pos.x
+      el.pos.y = el.relPos.y + this.pos.y
+    }
     this.invoke('update')
   },
 
