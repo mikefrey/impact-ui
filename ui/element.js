@@ -6,7 +6,7 @@ ig.module(
   'impact.font',
   'plugins.ui.statemachine'
 )
-.defines(function(){
+.defines(function(){ "use strict"
 
 var ui = ig.ui = ig.ui || {}
 

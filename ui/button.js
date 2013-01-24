@@ -6,7 +6,7 @@ ig.module(
   'impact.animation',
   'impact.font'
 )
-.defines(function(){
+.defines(function(){ "use strict"
 
 var ui = ig.ui = ig.ui || {}
 
