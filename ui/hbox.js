@@ -16,7 +16,7 @@ ui.Hbox = ig.ui.Panel.extend({
   align: 'left',
 
   update: function() {
-
+    this.parent()
   },
 
   addElement: function() {
@@ -25,14 +25,16 @@ ui.Hbox = ig.ui.Panel.extend({
     this.parent.apply(this, arguments)
 
     // only act upon the elements that were actually added
-    var els = this.elements.slice(prevLength)
-    if (!els || !els.length) return
+    if (this.elements.length <= prevLength) return
 
     var prevElem = this.elements[prevLength-1]
-    var nextTarget = prevElem ? addVectors(prevElem.target, prevElem.size) : this.pos
+    var nextTarget = prevElem ? addVectors(prevElem.targetPos, prevElem.size) : {x:0,y:0}
 
-    for (var i = 0; i < els.length; i++) {
-
+    for (var i = prevLength; i < this.elements.length; i++) {
+      var el = this.elements[i]
+      el.targetPos = nextTarget
+      el.relPos = nextTarget
+      nextTarget = addVectors(nextTarget, el.size)
     }
   }
 
@@ -50,7 +52,7 @@ ui.Hbox.ALIGN = {
 }
 
 function addVectors(a, b) {
-  return { x: a.x+b.x, y: a.y+b.y }
+  return { x: a.x+b.x, y: a.y }
 }
 
 })
