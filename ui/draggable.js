@@ -41,19 +41,6 @@ ui.Draggable = ig.ui.Element.extend({
       console.log(this.prevMouse, ig.input.mouse)
     }
     this.setPrevMouse()
-  },
-
-  draw: function() {
-    var ctx = ig.system.context
-    ctx.beginPath()
-    ctx.rect(
-      this.pos.x - this.offset.x - ig.game._rscreen.x,
-      this.pos.y - this.offset.y - ig.game._rscreen.y,
-      this.size.x,
-      this.size.y
-    )
-    ctx.fillStyle = '#d06000'
-    ctx.fill()
   }
 
 })
