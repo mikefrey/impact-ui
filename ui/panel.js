@@ -41,6 +41,8 @@ ui.Panel = ig.ui.Element.extend({
       var el = this.elements[i]
       el.pos.x = el.relPos.x + this.pos.x
       el.pos.y = el.relPos.y + this.pos.y
+      el.targetPos.x = el.targetRelPos.x + this.targetPos.x
+      el.targetPos.y = el.targetRelPos.y + this.targetPos.y
     }
     this.invoke('update')
   },
