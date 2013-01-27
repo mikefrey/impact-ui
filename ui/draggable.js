@@ -38,7 +38,6 @@ ui.Draggable = ig.ui.Element.extend({
       var dy = my - py
       this.pos.x += dx
       this.pos.y += dy
-      console.log(this.prevMouse, ig.input.mouse)
     }
     this.setPrevMouse()
   }

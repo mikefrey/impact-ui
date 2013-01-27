@@ -3,6 +3,7 @@ ig.module(
 )
 .requires(
   'plugins.ui.element',
+  'plugins.ui.easing',
   'impact.animation',
   'impact.font'
 )
@@ -24,18 +25,33 @@ ui.Hbox = ig.ui.Panel.extend({
 
     this.parent.apply(this, arguments)
 
-    // only act upon the elements that were actually added
+    // only reposition children if new elements were added
     if (this.elements.length <= prevLength) return
 
-    var prevElem = this.elements[prevLength-1]
-    var nextTarget = prevElem ? addVectors(prevElem.targetRelPos, prevElem.size) : {x:0,y:0}
-
-    for (var i = prevLength; i < this.elements.length; i++) {
+    var nextX = 0
+    var nextY = 0
+    for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i]
-      el.targetRelPos = nextTarget
-      el.relPos = nextTarget
-      nextTarget = addVectors(nextTarget, el.size)
+      // make the position absolute
+      this.makePosAbsolute(el.pos)
+      // initialize the animation
+      el.animateTo({x:nextX+this.pos.x, y:nextY+this.pos.y}, 2)
+      // make the postion relative
+      this.makePosRelative(el.pos)
+      nextX += el.size.x
     }
+
+
+    // var prevElem = this.elements[prevLength-1]
+    // var nextTarget = prevElem ? addVectors(prevElem.targetRelPos, prevElem.size) : {x:0,y:0}
+
+    // for (var i = prevLength; i < this.elements.length; i++) {
+    //   var el = this.elements[i]
+    //   // el.targetRelPos = nextTarget
+    //   // el.relPos = nextTarget
+    //   el.
+    //   nextTarget = addVectors(nextTarget, el.size)
+    // }
   }
 
 })

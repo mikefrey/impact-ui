@@ -4,8 +4,7 @@ ig.module(
 .requires(
   'impact.animation',
   'impact.font',
-  'plugins.ui.statemachine',
-  'plugins.ui.easing'
+  'plugins.ui.statemachine'
 )
 .defines(function(){ "use strict"
 
@@ -31,17 +30,12 @@ ui.Element = ig.Class.extend({
   settings: {},
 
   pos: { x:0, y:0 },
-  targetPos: { x:0, y:0 },
   size: { x:0, y:0 },
   offset: { x:0, y:0 },
 
   anims: {},
   animSheet: null,
-  // currentAnim: null,
   outline: false,
-
-  easing: ui.Easing.quadratic.easeOut,
-  ease: {},
 
   state: 'normal', // STATE.NORMAL,
   stateMachine: null,
@@ -70,8 +64,6 @@ ui.Element = ig.Class.extend({
   },
 
   update: function() {
-
-
     this.stateMachine.updateState()
     if (this.stateMachine.currentState === ui.BUTTONSTATE.INSIDEACTIVE) {
       this.pressed && this.pressed(this)

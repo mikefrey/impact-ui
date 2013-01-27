@@ -24,11 +24,12 @@ ui.Panel = ig.ui.Element.extend({
 
   addElement: function() {
     var els = Array.prototype.slice.call(arguments, 0)
+    if (els.length == 1 && Array.isArray(els[0])) els = els[0]
+
     if (els.length > 0) {
       for (var i = 0; i < els.length; i++) {
         var el = els[i]
         if (el && !~this.elements.indexOf(el)) {
-          el.relPos = { x:el.pos.x, y:el.pos.y }
           this.elements.push(el)
         }
       }
@@ -39,17 +40,26 @@ ui.Panel = ig.ui.Element.extend({
     this.parent()
     for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i]
-      el.pos.x = el.relPos.x + this.pos.x
-      el.pos.y = el.relPos.y + this.pos.y
-      el.targetPos.x = el.targetRelPos.x + this.targetPos.x
-      el.targetPos.y = el.targetRelPos.y + this.targetPos.y
+      // make the position absolute
+      this.makePosAbsolute(el.pos)
+      // run update on the element
+      el.update()
+      // make the postion relative
+      this.makePosRelative(el.pos)
     }
-    this.invoke('update')
   },
 
   draw: function() {
     this.parent()
-    this.invoke('draw')
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = this.elements[i]
+      // make the position absolute
+      this.makePosAbsolute(el.pos)
+      // run draw on the element
+      el.draw()
+      // make the postion relative
+      this.makePosRelative(el.pos)
+    }
   },
 
   enable: function() {
@@ -58,6 +68,16 @@ ui.Panel = ig.ui.Element.extend({
 
   disable: function() {
     this.invoke('disable')
+  },
+
+  makePosRelative: function(pos) {
+    pos.x -= this.pos.x
+    pos.y -= this.pos.y
+  },
+
+  makePosAbsolute: function(pos) {
+    pos.x += this.pos.x
+    pos.y += this.pos.y
   }
 
 })
