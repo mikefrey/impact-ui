@@ -40,18 +40,6 @@ ui.Hbox = ig.ui.Panel.extend({
       this.makePosRelative(el.pos)
       nextX += el.size.x
     }
-
-
-    // var prevElem = this.elements[prevLength-1]
-    // var nextTarget = prevElem ? addVectors(prevElem.targetRelPos, prevElem.size) : {x:0,y:0}
-
-    // for (var i = prevLength; i < this.elements.length; i++) {
-    //   var el = this.elements[i]
-    //   // el.targetRelPos = nextTarget
-    //   // el.relPos = nextTarget
-    //   el.
-    //   nextTarget = addVectors(nextTarget, el.size)
-    // }
   }
 
 })

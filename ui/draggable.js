@@ -14,6 +14,11 @@ ui.Draggable = ig.ui.Element.extend({
 
   prevMouse: {},
 
+  init: function(settings) {
+    this.parent(settings)
+    this.on('pressed', this.reposition.bind(this))
+  },
+
   update: function() {
     this.parent()
   },
@@ -23,12 +28,19 @@ ui.Draggable = ig.ui.Element.extend({
     this.prevMouse.y = ig.input.mouse.y
   },
 
+  onDropped: function() {},
+
+  onEndClick: function() {
+    this.parent()
+    this.emit({type:'drop'})
+  },
+
   onStartClick: function() {
     this.parent()
     this.setPrevMouse()
   },
 
-  pressed: function() {
+  reposition: function() {
     if (this.prevMouse) {
       var mx = ig.input.mouse.x
       var my = ig.input.mouse.y
@@ -40,9 +52,9 @@ ui.Draggable = ig.ui.Element.extend({
       this.pos.y += dy
     }
     this.setPrevMouse()
+    this.emit({type:'drag'})
   }
 
 })
-
 
 })

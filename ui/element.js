@@ -4,7 +4,8 @@ ig.module(
 .requires(
   'impact.animation',
   'impact.font',
-  'plugins.ui.statemachine'
+  'plugins.ui.statemachine',
+  'plugins.ui.events'
 )
 .defines(function(){ "use strict"
 
@@ -25,7 +26,7 @@ var stateMap = {
 }
 
 
-ui.Element = ig.Class.extend({
+var Element = ui.Element = ig.Class.extend({
   id: 0,
   settings: {},
 
@@ -44,6 +45,10 @@ ui.Element = ig.Class.extend({
     this.id = ui.nextId()
     ig.merge(this, settings)
 
+    Element.add(this)
+
+    ui.Events.call(this)
+
     var sm = this.stateMachine = new ui.StateMachine()
     sm.isMouseInside = this.isMouseInside.bind(this)
     sm.isMouseDown = this.isMouseDown.bind(this)
@@ -53,6 +58,18 @@ ui.Element = ig.Class.extend({
     sm.startClick = this.onStartClick.bind(this)
     sm.endClick = this.onEndClick.bind(this)
     sm.endClickIgnore = this.onEndClickIgnore.bind(this)
+  },
+
+  remove: function() {
+    Element.remove(this)
+    this.off()
+    this.animSheet = null
+    this.anims = null
+    this.pos = null
+    this.size = null
+    this.offset = null
+    this.settings = null
+    this.stateMachine = null
   },
 
   addAnim: function(name, frameTime, sequence, stop) {
@@ -66,7 +83,7 @@ ui.Element = ig.Class.extend({
   update: function() {
     this.stateMachine.updateState()
     if (this.stateMachine.currentState === ui.BUTTONSTATE.INSIDEACTIVE) {
-      this.pressed && this.pressed(this)
+      this.emit({type:'pressed'}) //this.pressed && this.pressed(this)
     }
   },
 
@@ -119,11 +136,6 @@ ui.Element = ig.Class.extend({
     // this.state = ui.STATE.DISABLED
   },
 
-  pressed: null,
-  pressDown: null,
-  pressUp: null,
-
-
   /* State Machine input functions */
 
   isMouseInside: function() {
@@ -142,20 +154,24 @@ ui.Element = ig.Class.extend({
 
   onStartHover: function() {
     this.setCurrentState()
+    this.emit({type:'hover'})
   },
 
   onEndHover: function() {
     this.setCurrentState()
+    this.emit({type:'hoverEnd'})
   },
 
   onStartClick: function() {
     this.setCurrentState()
     this.pressDown && this.pressDown(this)
+    this.emit({type:'pressDown'})
   },
 
   onEndClick: function() {
     this.setCurrentState()
     this.pressUp && this.pressUp(this)
+    this.emit({type:'pressUp'})
   },
 
   onEndClickIgnore: function() {
@@ -164,5 +180,15 @@ ui.Element = ig.Class.extend({
 
 })
 
+
+Element.all = []
+
+Element.add = function(el) {
+  Element.all.push(el)
+}
+
+Element.remove = function(el) {
+  Element.all.erase(el)
+}
 
 })
